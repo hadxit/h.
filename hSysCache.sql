@@ -18,7 +18,6 @@ create or replace PACKAGE h$cache AS
     -- Support functions.
     -- --------------------------------------------------
 
-
     -- --------------------------------------------------
     -- Load class info from database.
     -- --------------------------------------------------
@@ -53,6 +52,7 @@ create or replace PACKAGE h$cache AS
                                    p_val9      IN h$type.obj_value_t);
     PROCEDURE addCustomCache (p_rec IN h$type.col_custom_rec_t);
     FUNCTION  findCustomCache(p_classname IN h$type.class_name_t ) RETURN h$type.col_custom_rec_t;
+   
     
     PROCEDURE cset (p_classname in h$type.class_name_t, 
                     p_key in h$type.obj_key_t,
@@ -65,7 +65,13 @@ create or replace PACKAGE h$cache AS
                     p_val7 in h$type.obj_value_t,
                     p_val8 in h$type.obj_value_t,
                     p_val9 in h$type.obj_value_t);
-    PROCEDURE cset (p_classname in h$type.class_name_t, p_key in h$type.int_t,
+   
+    PROCEDURE cset   (p_classname in h$type.class_name_t,
+                      p_val in h$type.obj_value_t);
+                       
+                    
+    PROCEDURE cset (p_classname in h$type.class_name_t, 
+                    p_key in h$type.int_t,
                     p_val1 in h$type.obj_value_t,
                     p_val2 in h$type.obj_value_t,
                     p_val3 in h$type.obj_value_t,
@@ -75,7 +81,10 @@ create or replace PACKAGE h$cache AS
                     p_val7 in h$type.obj_value_t,
                     p_val8 in h$type.obj_value_t,
                     p_val9 in h$type.obj_value_t);   
-    PROCEDURE cset   (p_classname in h$type.class_name_t,p_val in h$type.obj_value_t);
+ 
+    FUNCTION cset   (p_classname in h$type.class_name_t,
+                      p_val in h$type.obj_value_t) RETURN h$type.var_t; 
+                         
     
     FUNCTION cset (p_classname in h$type.class_name_t, 
                     p_key in h$type.obj_key_t,
@@ -88,7 +97,10 @@ create or replace PACKAGE h$cache AS
                     p_val7 in h$type.obj_value_t,
                     p_val8 in h$type.obj_value_t,
                     p_val9 in h$type.obj_value_t) return h$type.var_t;    
-    FUNCTION cset (p_classname in h$type.class_name_t, p_key in h$type.int_t,
+   
+   
+   FUNCTION cset (p_classname in h$type.class_name_t, 
+                   p_key in h$type.int_t,
                     p_val1 in h$type.obj_value_t,
                     p_val2 in h$type.obj_value_t,
                     p_val3 in h$type.obj_value_t,
@@ -98,7 +110,7 @@ create or replace PACKAGE h$cache AS
                     p_val7 in h$type.obj_value_t,
                     p_val8 in h$type.obj_value_t,
                     p_val9 in h$type.obj_value_t) return h$type.var_t;    
-    FUNCTION  cset   (p_classname in h$type.class_name_t,p_val in h$type.obj_value_t) RETURN h$type.var_t; 
+ 
     
     FUNCTION  count (p_classname in h$type.class_name_t) RETURN h$type.int_t;
     
@@ -107,17 +119,11 @@ create or replace PACKAGE h$cache AS
     PROCEDURE remove (p_classname in h$type.class_name_t);
     
     FUNCTION get(p_classname in h$type.class_name_t) RETURN hobjvalueset_t10;
-    FUNCTION get(p_classname in h$type.class_name_t,p_key in h$type.obj_key_t) RETURN hobjvalueset_t10;
-    
-    FUNCTION encrypt(p_str in h$type.var_t,p_key in h$type.var_t) RETURN h$type.var_t;
-    FUNCTION decrypt(p_str in h$type.var_t,p_key in h$type.var_t) RETURN h$type.var_t;
-    PROCEDURE loadEncryptKey(p_key in h$type.var_t); 
-    
-    FUNCTION key_gen(p_key in h$type.var_t) RETURN h$type.var_t;
-    FUNCTION key_degen(p_key in h$type.var_t) RETURN h$type.var_t;
+    FUNCTION get(p_classname in h$type.class_name_t,p_key in h$type.obj_key_t) RETURN hobjvalueset_t10;  
+
 
 END h$cache;
-
+/
 
 CREATE OR REPLACE PACKAGE BODY h$cache AS
 -- ------------------------------------------------
@@ -134,221 +140,9 @@ CREATE OR REPLACE PACKAGE BODY h$cache AS
 -- or its designated agents.
 -- ------------------------------------------------
 
-    FUNCTION key_gen(p_key in h$type.var_t) RETURN h$type.var_t
-    IS
-      l_str     h$type.var_t := NULL;
-      l_str2    h$type.var_t := NULL;
-      l_key_len h$type.num_t;
-      l_idx     h$type.num_t := 1;
-      l_pattern h$type.var_t := '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      l_chr     h$type.var_t := NULL;
-      l_inc     h$type.num_t := 1;
-    BEGIN
-    
-      FOR cur in (select valdata from table(h$util.to_split(substrb(p_key,1,2000),1))) LOOP
-          
-          IF l_str IS NOT NULL THEN l_str := l_str ||'Q'; END IF;
-              
-         l_str := l_str || h$util.to_hex(h$util.to_ascii(cur.valdata));
-              
-          IF l_idx = l_key_len THEN
-             l_idx := 1;
-          ELSE
-             l_idx := l_idx + 1;
-          END IF;
-          
-      END LOOP;   
-      
-            
-      FOR i in 1..length(l_str) LOOP
-      
-          l_chr := substr(l_str,i,1);
-      
-          l_str2 := l_str2 || substr(l_pattern,instr(l_pattern,l_chr)+l_inc,1);
-          IF l_inc = 9 THEN 
-             l_inc := 1;
-          ELSE
-             l_inc := l_inc + 1;
-          END IF;
-      
-      END LOOP;      
-     
-      return l_str2;
-    
-    END key_gen;
-    
-    
-    FUNCTION key_degen(p_key in h$type.var_t) RETURN h$type.var_t
-    IS
-      l_str     h$type.var_t := NULL;
-      l_str2    h$type.var_t := NULL;
-      l_key_len h$type.num_t;
-      l_idx     h$type.num_t := 1;
-      l_pattern h$type.var_t := '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      l_chr     h$type.var_t := NULL;
-      l_inc     h$type.num_t := 1;
-    BEGIN
-    
-      FOR i in 1..length(p_key) LOOP
-      
-          l_chr := substr(p_key,i,1);
-      
-          l_str2 := l_str2 || substr(l_pattern,instr(l_pattern,l_chr)-l_inc,1);
-          IF l_inc = 9 THEN 
-             l_inc := 1;
-          ELSE
-             l_inc := l_inc + 1;
-          END IF;
-      
-      END LOOP;      
-      
-      
-      FOR cur in (select valdata from table(h$util.to_split(substrb(l_str2,1,2000),'Q'))) LOOP
-          
-          l_str := l_str || chr(h$util.to_ascii(cur.valdata,16));              
-          
-      END LOOP;   
-
-      
-      return l_str;
-    
-    END key_degen;
-    
-    
-    FUNCTION encrypt(p_str in h$type.var_t,p_key in h$type.var_t) RETURN h$type.var_t
-    IS
-      l_str     h$type.var_t := NULL;
-      l_str2    h$type.var_t := NULL;
-      l_key_len h$type.num_t;
-      l_idx     h$type.num_t := 1;
-      l_pattern h$type.var_t := '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      l_chr     h$type.var_t := NULL;
-      l_inc     h$type.num_t := 1;
-      l_key     h$type.var_t := NULL;
-    BEGIN
-    
-      l_key := key_degen(p_key);
-    
-      loadEncryptKey(l_key);
-      l_key_len := length(l_key);
-      
-      
-      IF l_key_len > 0 THEN
-      
-          FOR cur in (select valdata from table(h$util.to_split(substrb(p_str,1,2000),1))) LOOP
-          
-              IF l_str IS NOT NULL THEN l_str := l_str ||'Q'; END IF;
-              
-             l_str := l_str || h$util.to_hex(h$util.to_ascii(cur.valdata) + 
-                                    TO_NUMBER(H$CACHE.GETSYSTEMCACHE(h$constants.c_encrypt,to_char(l_idx))));
-              
-              IF l_idx = l_key_len THEN
-                 l_idx := 1;
-              ELSE
-                 l_idx := l_idx + 1;
-              END IF;
-          
-          END LOOP;   
-      
-      END IF;
-      
-            
-      FOR i in 1..length(l_str) LOOP
-      
-          l_chr := substr(l_str,i,1);
-      
-          l_str2 := l_str2 || substr(l_pattern,instr(l_pattern,l_chr)+l_inc,1);
-          IF l_inc = 9 THEN 
-             l_inc := 1;
-          ELSE
-             l_inc := l_inc + 1;
-          END IF;
-      
-      END LOOP;      
-     
-      return l_str2;      
-      
-    END encrypt;
-    
-    FUNCTION decrypt(p_str in h$type.var_t,p_key in h$type.var_t) RETURN h$type.var_t
-    IS
-      l_str     h$type.var_t := NULL;
-      l_str2    h$type.var_t := NULL;
-      l_key_len h$type.num_t;
-      l_idx     h$type.num_t := 1;
-      l_pattern h$type.var_t := '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      l_chr     h$type.var_t := NULL;
-      l_inc     h$type.num_t := 1;
-      l_key     h$type.var_t := NULL;
-    BEGIN
-    
-      l_key := key_degen(p_key);
-          
-      loadEncryptKey(l_key);
-      l_key_len := length(l_key);
-    
-      FOR i in 1..length(p_str) LOOP
-      
-          l_chr := substr(p_str,i,1);
-      
-          l_str2 := l_str2 || substr(l_pattern,instr(l_pattern,l_chr)-l_inc,1);
-          IF l_inc = 9 THEN 
-             l_inc := 1;
-          ELSE
-             l_inc := l_inc + 1;
-          END IF;
-      
-      END LOOP;      
-      
-  
-      IF l_key_len > 0 THEN
-      
-          FOR cur in (select valdata from table(h$util.to_split(substrb(l_str2,1,2000),'Q'))) LOOP
-          
-              l_str := l_str || chr(abs(h$util.to_ascii(cur.valdata,16) - 
-                                    TO_NUMBER(H$CACHE.GETSYSTEMCACHE(h$constants.c_encrypt,to_char(l_idx)))));
-              
-              
-              IF l_idx = l_key_len THEN
-                 l_idx := 1;
-              ELSE
-                 l_idx := l_idx + 1;
-              END IF;
-          
-          END LOOP;   
-      
-      END IF;
-      
-      return l_str;
-      
-      
-    END decrypt;
    
-    PROCEDURE loadEncryptKey(p_key in h$type.var_t)
-    IS
-      l_sys_col  h$type.col_value_t10;
-      obj        h$type.col_systme_rec_t;
-    BEGIN
-          
-       l_sys_col  :=  h$constants.c_null_sub_info;
-       obj        :=  h$constants.c_null_system_rec;
-       
-       obj.init   := TRUE;
-       obj.depths := 1;
-       obj.className := h$constants.c_encrypt;
-       
-       FOR cur in (select rownum rn,valdata valdata from table(h$util.to_split(substrb(p_key,1,2000),1))) LOOP
-       
-           addChildObject(l_sys_col,to_char(cur.rn),to_char(cur.valdata),to_char(h$util.to_ascii(cur.valdata)));           
-           
-       END LOOP;
-       
-       
-       obj.children := l_sys_col;
-       
-       h$variables.c_all_sys_classes(obj.className) := obj;
-    
-    END loadEncryptKey;
+   
+   
  
     PROCEDURE addChildObject(p_col  IN OUT h$type.col_value_t10,
                              p_key  IN h$type.obj_key_t,
@@ -400,7 +194,7 @@ CREATE OR REPLACE PACKAGE BODY h$cache AS
    
     EXCEPTION
         WHEN h$execeptions.x_duplicate THEN
-            nothing := nothing;
+            raise;
         WHEN OTHERS THEN
             RAISE h$execeptions.x_init;    
     END addSystemCache;
@@ -433,9 +227,6 @@ CREATE OR REPLACE PACKAGE BODY h$cache AS
           
        RETURN l_rtn_val;
     
-    EXCEPTION
-        WHEN OTHERS THEN
-            raise_application_error(-20001,'Undefined error occured in getSystemCache');
     END getSystemCache;
     
     
@@ -456,54 +247,54 @@ CREATE OR REPLACE PACKAGE BODY h$cache AS
     IS
       nullobj h$type.col_value_t10;
       newdata h$type.col_value_rec_t10;
-      idx     h$type.int_t;  
+      idx     h$type.int_t; 
+      l_key   h$type.obj_key_t;
     BEGIN
       
-       idx := h$cache.count(p_classname);
+       idx := h$cache.count(p_classname) + 1;
         
        IF p_key IS NULL THEN 
-          newdata.valdata1     := TO_CHAR(idx);
-          newdata.valdata2     := p_val1;
-          valset(TO_CHAR(idx)) := newdata;
-          keyset(idx)          := TO_CHAR(idx);     
-          
+         l_key := TO_CHAR(idx);  
        ELSE
-          DECLARE
-            childobj  h$type.col_value_rec_t10;
-          BEGIN
-              /* check invalid key */
-              childobj  := valset(p_key);
+         l_key := p_key; 
+       END IF;
+       
+      DECLARE
+        childobj  h$type.col_value_rec_t10;
+      BEGIN
+          /* check invalid key */
+          childobj  := valset(l_key);
             
-              newdata.valdata1   := p_key;
-              newdata.valdata2   := p_val1;
-              newdata.valdata3   := p_val2;
-              newdata.valdata4   := p_val3;
-              newdata.valdata5   := p_val4;
-              newdata.valdata6   := p_val5;
-              newdata.valdata7   := p_val6;
-              newdata.valdata8   := p_val7;
-              newdata.valdata9   := p_val8;
-              newdata.valdata10  := p_val9;
+          newdata.valdata1   := l_key;
+          newdata.valdata2   := p_val1;
+          newdata.valdata3   := p_val2;
+          newdata.valdata4   := p_val3;
+          newdata.valdata5   := p_val4;
+          newdata.valdata6   := p_val5;
+          newdata.valdata7   := p_val6;
+          newdata.valdata8   := p_val7;
+          newdata.valdata9   := p_val8;
+          newdata.valdata10  := p_val9;
               
-              valset(p_key)      := newdata;
-            
-          EXCEPTION
-           WHEN OTHERS THEN
-              -- exception when there is no exists childobject with specified key
-              newdata.valdata1   := p_key;
-              newdata.valdata2   := p_val1;
-              newdata.valdata3   := p_val2;
-              newdata.valdata4   := p_val3;
-              newdata.valdata5   := p_val4;
-              newdata.valdata6   := p_val5;
-              newdata.valdata7   := p_val6;
-              newdata.valdata8   := p_val7;
-              newdata.valdata9   := p_val8;
-              newdata.valdata10  := p_val9;
-              valset(p_key)      := newdata;  
-              keyset(idx)        := p_key;            
-          END;
-       END IF; 
+          valset(l_key)      := newdata;
+
+      EXCEPTION
+       WHEN OTHERS THEN
+          -- exception when there is no exists childobject with specified key
+          newdata.valdata1   := l_key;
+          newdata.valdata2   := p_val1;
+          newdata.valdata3   := p_val2;
+          newdata.valdata4   := p_val3;
+          newdata.valdata5   := p_val4;
+          newdata.valdata6   := p_val5;
+          newdata.valdata7   := p_val6;
+          newdata.valdata8   := p_val7;
+          newdata.valdata9   := p_val8;
+          newdata.valdata10  := p_val9;
+          valset(l_key)      := newdata;  
+          keyset(idx)        := l_key;            
+      END;
+      
     END addCustomChildObject;
     
 
@@ -821,7 +612,7 @@ CREATE OR REPLACE PACKAGE BODY h$cache AS
                
                BEGIN
                
-                 IF (childobjset(l_key).valdata1 is not null) THEN
+                 IF (childobjset(l_key).valdata1 is not null or childobjset(l_key).valdata1 != '') THEN
                      l_count := l_count + 1;
                  END IF;
                EXCEPTION
@@ -845,7 +636,7 @@ CREATE OR REPLACE PACKAGE BODY h$cache AS
     IS
       obj         h$type.col_custom_rec_t;
       nullobj     h$type.col_value_rec_t10;
-      l_count     h$type.int_t:=0;
+      l_count     h$type.int_t:=1;
       l_key       h$type.obj_key_t;
     BEGIN
        
@@ -854,12 +645,13 @@ CREATE OR REPLACE PACKAGE BODY h$cache AS
        FOR idx IN obj.keyset.FIRST..obj.keyset.LAST LOOP
        
            l_key := obj.keyset(idx);
-           
+         --  dbms_output.put_line('idx : '||to_char(idx)||' Key : '||l_key||' count:'||to_char(l_count)||' p_key:'||to_char(p_key)||' valdata'||obj.children(l_key).valdata1);
            BEGIN
-           
+          
              IF (obj.children(l_key).valdata1 is not null) THEN
-                 l_count := l_count + 1;
-                 IF l_count >= p_key THEN
+                 
+                 IF l_count >= p_key  THEN
+           --         dbms_output.put_line(obj.children(TO_CHAR(l_count)).valdata1||','||obj.children(TO_CHAR(l_count)).valdata2);
                    BEGIN
                      obj.children(TO_CHAR(l_count)) := obj.children(TO_CHAR(l_count+1)) ;
                    EXCEPTION
@@ -867,6 +659,7 @@ CREATE OR REPLACE PACKAGE BODY h$cache AS
                      obj.children(TO_CHAR(l_count)) := nullobj;
                    END;
                  END IF;
+                l_count := l_count + 1;
              END IF;
            EXCEPTION
             WHEN OTHERS THEN
@@ -876,6 +669,7 @@ CREATE OR REPLACE PACKAGE BODY h$cache AS
 
        END LOOP;
        
+       obj.children(TO_CHAR(obj.children.count)) := nullobj;
        --obj.keyset(TO_CHAR(p_key)) := NULL;
        -- Number cace collection need to be shift according to remove number index key
        addCustomCache(obj);    

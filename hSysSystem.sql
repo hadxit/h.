@@ -39,6 +39,7 @@ create or replace PACKAGE  h$system AS
      FUNCTION SYS_LIMIT RETURN hobjvalueset_t1;
 
 END h$system;
+/
 
    -- grant select on V_$SQLTEXT to USERNAME;
    -- grant select on V_$SQL to USERNAME
@@ -59,12 +60,12 @@ END h$system;
    -- grant select on v_$option to USERNAME;
    -- grant select on v_$sgastat to USERNAME;
    -- grant select on v_$parameter to USERNAME;
-   -- grant select on dba_tablespaces to USERNAME;
+   -- grant select on dba_tablespaces to USERNAME; 
    -- grant select on dba_data_files to USERNAME;
    -- grant select on dba_segments to USERNAME;
    -- grant select on dba_free_space to USERNAME;
    -- grant select on dba_dependencies to USERNAME;
-   -- grant select on dba_objects to USERAME;
+   -- grant select on dba_objects to USERAME; 
 CREATE OR REPLACE PACKAGE BODY h$system AS
 -- ------------------------------------------------
 --
@@ -165,7 +166,7 @@ CREATE OR REPLACE PACKAGE BODY h$system AS
        
        l_stmt := rpad('SQL restriction',30,' ')||rpad('Size of SQL statement',40,' ')||lpad('65,535 B',30,' ');         
        addChildLine(l_stmt,l_sys);
-       l_stmt := rpad('             ',30,' ')||rpad('Size of Dynamice SQL',40,' ')||lpad('32 KB',30,' ');         
+       l_stmt := rpad('             ',30,' ')||rpad('Size of Dynamic SQL',40,' ')||lpad('32 KB',30,' ');         
        addChildLine(l_stmt,l_sys);
        l_stmt := rpad('             ',30,' ')||rpad('Size of FROM statement',40,' ')||lpad('Unlimited',30,' ');         
        addChildLine(l_stmt,l_sys);
@@ -307,7 +308,7 @@ CREATE OR REPLACE PACKAGE BODY h$system AS
       l_stmt := l_stmt ||' and s.parsing_schema_name not in (''SYS'',''SYSMAN'',''ORACLE_OCM'',''MDSYS'',''EXFSYS'',''APEX_030200'')';
   
       IF p_sqltext != '*' and p_sqltext is not null then
-         l_stmt := l_stmt ||' and s.sql_text like '''||p_sqltext||'''';
+         l_stmt := l_stmt ||' and s.sql_text like ''%'||p_sqltext||'%''';
       END IF;
 
       EXECUTE IMMEDIATE l_stmt BULK COLLECT INTO l_rtn;
@@ -896,12 +897,12 @@ CREATE OR REPLACE PACKAGE BODY h$system AS
        l_stmt := l_stmt ||'  from (';
        l_stmt := l_stmt ||'        select /*+ no_merge */';
        l_stmt := l_stmt ||'               referenced_type || '' "'' || referenced_owner || ''"."'' ||';
-       l_stmt := l_stmt ||'               referenced_name || ''"'' as parent,';
+       l_stmt := l_stmt ||'               referenced_name || ''"'' as parent,owner,';
        l_stmt := l_stmt ||'               type || '' "'' || owner || ''"."'' || name || ''"'' as child,';
        l_stmt := l_stmt ||'               level hlevel,';
        l_stmt := l_stmt ||'               referenced_owner, referenced_name, referenced_type,';
-       l_stmt := l_stmt ||'               owner, name, type, ''1'' rn';
-       l_stmt := l_stmt ||'          from user_dependencies';
+       l_stmt := l_stmt ||'                name, type, ''1'' rn';
+       l_stmt := l_stmt ||'          from dba_dependencies';
        l_stmt := l_stmt ||'    start with referenced_owner = '''||upper(p_owner)||'''';
        l_stmt := l_stmt ||'    and referenced_name = '''||upper(p_object)||'''';
        l_stmt := l_stmt ||'    connect by referenced_owner = prior owner';
@@ -910,12 +911,12 @@ CREATE OR REPLACE PACKAGE BODY h$system AS
        l_stmt := l_stmt ||' union';
        l_stmt := l_stmt ||'        select /*+ no_merge */';
        l_stmt := l_stmt ||'               referenced_type || '' "'' || referenced_owner || ''"."'' ||';
-       l_stmt := l_stmt ||'               referenced_name || ''"'' as parent,';
+       l_stmt := l_stmt ||'               referenced_name || ''"'' as parent,owner,';
        l_stmt := l_stmt ||'               type || '' "'' || owner || ''"."'' || name || ''"'' as child,';
        l_stmt := l_stmt ||'               level hlevel,';
        l_stmt := l_stmt ||'               referenced_owner, referenced_name, referenced_type,';
-       l_stmt := l_stmt ||'               owner, name, type, ''1'' rn';
-       l_stmt := l_stmt ||'         from user_dependencies';
+       l_stmt := l_stmt ||'                name, type, ''1'' rn';
+       l_stmt := l_stmt ||'         from dba_dependencies';
        l_stmt := l_stmt ||'    start with owner = '''||upper(p_owner)||'''';
        l_stmt := l_stmt ||'      and name = '''||upper(p_object)||'''';
        l_stmt := l_stmt ||'      connect by owner = prior referenced_owner';

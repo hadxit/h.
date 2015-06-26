@@ -110,15 +110,23 @@ create or replace PACKAGE h$util AS
                    columnname in varchar2,
                    keycolumnname in varchar2) RETURN hobjvalueset_t1;
                    
-                   --> 하다 말음
+
                    
    FUNCTION to_stmt(p_str in varchar2,prefix in varchar2) return h$type.var_t;
    FUNCTION to_stmt2(p_str in varchar2,prefix in varchar2) return h$type.var_t;
    FUNCTION to_trans(p_num in number) return h$type.var_t;
    FUNCTION to_trans(p_base in date,p_posting in date) return h$type.var_t;
+   FUNCTION to_trans(p_base in date,p_posting in date,p_key in varchar2) return h$type.var_t;   
+   FUNCTION to_transx(p_time in varchar2, p_key in varchar2) return h$type.var_t;
+   FUNCTION to_transy(p_time in number, p_key in varchar2) return h$type.var_t;
    
    FUNCTION counta(p_str in varchar2, p_delimeter in varchar2) return h$type.num_t;
+   
+   FUNCTION to_reverse(p_str in varchar2) return h$type.var_t;
+   FUNCTION to_reverse(p_num in number) return h$type.num_t;
+   
 END h$util;
+/
 
 create or replace PACKAGE BODY h$util AS
 -- ------------------------------------------------
@@ -534,7 +542,7 @@ create or replace PACKAGE BODY h$util AS
 
        ELSE
        
-           IF (p_key is not null and substr(p_str,length(p_str)-length(p_key)) = p_key ) or p_key is null then
+           IF (p_key is not null and substr(p_str,length(p_str)-length(p_key)+1) = p_key ) or p_key is null then
                for i in 1..l_max loop     
                    post_fix := post_fix ||p_val;
                end loop;
@@ -586,24 +594,27 @@ create or replace PACKAGE BODY h$util AS
    
    
    
-   
-   
-
-
- 
     FUNCTION to_substr(p_str in varchar2,p_delimeter in varchar2,p_direction in varchar2) RETURN H$TYPE.var_t
     IS
      l_rtn_val H$TYPE.var_t;
     BEGIN
     
-       IF upper(p_direction) = h$constants.c_left THEN
+       IF upper(p_direction) = h$constants.c_ll THEN
        
-          l_rtn_val := substr(p_str,1,instrb(p_str,p_delimeter)-1);
+          l_rtn_val := substr(p_str,1,instr(p_str,p_delimeter)-1);
        
-       ELSE
+       ELSIF upper(p_direction) = h$constants.c_lr THEN
           
-          l_rtn_val := substr(p_str,instrb(p_str,p_delimeter)+1);          
+          l_rtn_val := substr(p_str,instr(p_str,p_delimeter)+1);  
+          
+       ELSIF upper(p_direction) = h$constants.c_rr THEN
+          
+          l_rtn_val := substr(p_str,length(p_str)-instr(h$util.to_reverse(p_str),p_delimeter)+2); 
        
+       ELSIF upper(p_direction) = h$constants.c_rl THEN
+                  
+          l_rtn_val := substr(p_str,1,length(p_str)-instr(h$util.to_reverse(p_str),p_delimeter));  
+          
        END IF;
        
        return l_rtn_val;
@@ -675,12 +686,12 @@ create or replace PACKAGE BODY h$util AS
     BEGIN
       IF instr(to_char(p_dec),'.') > 0 then
       
-         l_first  := to_substr(to_char(p_dec),'.',h$constants.c_left);
-         l_second := to_substr(to_char(p_dec),'.',h$constants.c_right);
-         l_stmt   := add_pattern(l_first,',',3, h$constants.c_right)||l_middle||l_second;
+         l_first  := to_substr(to_char(p_dec),'.',h$constants.c_ll);
+         l_second := to_substr(to_char(p_dec),'.',h$constants.c_lr);
+         l_stmt   := add_pattern(l_first,',',3, h$constants.c_left)||l_middle||l_second;
          
       ELSE
-         l_stmt:=  add_pattern( to_char(p_dec),',',3, h$constants.c_right);
+         l_stmt:=  add_pattern( to_char(p_dec),',',3, h$constants.c_left);
       END IF;
       
       IF substr(l_stmt,1,1) = ',' THEN
@@ -709,7 +720,7 @@ create or replace PACKAGE BODY h$util AS
         IF l_ptn = 0 THEN l_ptn := 1; END IF;    
         
         
-        IF upper(p_direction) = h$constants.c_right THEN
+        IF upper(p_direction) = h$constants.c_left THEN
        
         l_cnt := l_max ;
         
@@ -762,7 +773,7 @@ create or replace PACKAGE BODY h$util AS
        
         IF l_ptn = 0 THEN l_ptn := 1; END IF;  
         
-        IF upper(p_direction) = h$constants.c_right THEN
+        IF upper(p_direction) = h$constants.c_left THEN
            l_cnt := l_max ;
         
            loop
@@ -934,9 +945,7 @@ create or replace PACKAGE BODY h$util AS
        l_rtn_val := p_val*diff;         
    
        return l_rtn_val;
-    EXCEPTION     
-     WHEN OTHERS THEN
-       raise_application_error(-20001,SQLERRM);
+
     END to_xxx;
 
     FUNCTION to_width(p_val IN NUMBER,p_from_key IN VARCHAR2, p_to_key IN VARCHAR2) RETURN H$TYPE.num_t
@@ -952,7 +961,8 @@ create or replace PACKAGE BODY h$util AS
          upper(p_from_key) != upper(H$CONSTANTS.c_km2) and
          upper(p_from_key) != upper(H$CONSTANTS.c_ft2) and
          upper(p_from_key) != upper(H$CONSTANTS.c_yd2) and
-         upper(p_from_key) != upper(H$CONSTANTS.c_ac) THEN
+         upper(p_from_key) != upper(H$CONSTANTS.c_ac)  and
+         upper(p_from_key) != upper(H$CONSTANTS.c_p)  THEN
          
          RAISE H$EXECEPTIONS.X_UNDEFINED;
          
@@ -963,7 +973,8 @@ create or replace PACKAGE BODY h$util AS
          upper(p_to_key) != upper(H$CONSTANTS.c_km2) and
          upper(p_to_key) != upper(H$CONSTANTS.c_ft2) and
          upper(p_to_key) != upper(H$CONSTANTS.c_yd2) and
-         upper(p_to_key) != upper(H$CONSTANTS.c_ac)  THEN
+         upper(p_to_key) != upper(H$CONSTANTS.c_ac)  and
+         upper(p_to_key) != upper(H$CONSTANTS.c_p)  THEN
       
          RAISE H$EXECEPTIONS.X_UNDEFINED;
       
@@ -1721,15 +1732,166 @@ create or replace PACKAGE BODY h$util AS
        
     END to_trans;   
     
+    
     FUNCTION to_trans(p_base in date,p_posting in date) return h$type.var_t
+    IS
+    BEGIN
+       return to_trans(p_base,p_posting,h$constants.c_english);
+    END to_trans; 
+   
+    FUNCTION to_transx(p_time in varchar2, p_key in varchar2) return h$type.var_t
+    IS
+     l_rtn_value h$type.var_t;
+    BEGIN
+    
+       IF p_time = h$constants.c_time_now THEN
+       
+          IF p_key = h$constants.c_chinese THEN
+             l_rtn_value := chr(15175614)||chr(15047848);
+          ELSIF p_key = h$constants.c_japanese THEN
+             l_rtn_value := chr(14990218);
+          ELSIF p_key = h$constants.c_korean THEN
+             l_rtn_value := chr(15509376)||chr(15382664);
+          ELSE
+             l_rtn_value := p_time;
+          END IF;
+       
+       END IF;
+       
+       IF p_time = h$constants.c_time_minute THEN
+       
+          IF p_key = h$constants.c_chinese THEN
+             l_rtn_value := chr(15042694)||chr(15042957);
+          ELSIF p_key = h$constants.c_japanese THEN
+             l_rtn_value := chr(15042694)||chr(15042957);
+          ELSIF p_key = h$constants.c_korean THEN
+             l_rtn_value := chr(15447684)||chr(15507588);
+          ELSE
+             l_rtn_value := p_time;
+          END IF;
+       
+       END IF;
+       
+       IF p_time = h$constants.c_time_hours THEN
+       
+          IF p_key = h$constants.c_chinese THEN
+             l_rtn_value := chr(15112578)||chr(15042957);
+          ELSIF p_key = h$constants.c_japanese THEN
+             l_rtn_value := chr(15112578)||chr(15042957);
+          ELSIF p_key = h$constants.c_korean THEN
+             l_rtn_value := chr(15502236)||chr(15507588);
+          ELSE
+             l_rtn_value := p_time;
+          END IF;
+       
+       END IF;
+       
+       
+       IF p_time = h$constants.c_time_days THEN
+       
+          IF p_key = h$constants.c_chinese THEN
+             l_rtn_value := chr(15112101)||chr(15042957);
+          ELSIF p_key = h$constants.c_japanese THEN
+             l_rtn_value := chr(15112101)||chr(15042957);
+          ELSIF p_key = h$constants.c_korean THEN
+             l_rtn_value := chr(15506876)||chr(15507588);
+          ELSE
+             l_rtn_value := p_time;
+          END IF;
+       
+       END IF;
+       
+       IF p_time = h$constants.c_time_weeks THEN
+       
+          IF p_key = h$constants.c_chinese THEN
+             l_rtn_value := chr(15302833)||chr(15042957);
+          ELSIF p_key = h$constants.c_japanese THEN
+             l_rtn_value := chr(15302833)||chr(15042957);
+          ELSIF p_key = h$constants.c_korean THEN
+             l_rtn_value := chr(15508412)||chr(15507588);
+          ELSE
+             l_rtn_value := p_time;
+          END IF;
+       
+       END IF;
+       
+       IF p_time = h$constants.c_time_months THEN
+       
+          IF p_key = h$constants.c_chinese THEN
+             l_rtn_value := chr(15113352)||chr(15042957);
+          ELSIF p_key = h$constants.c_japanese THEN
+             l_rtn_value := chr(15113352)||chr(15042957);
+          ELSIF p_key = h$constants.c_korean THEN
+             l_rtn_value := chr(15506324)||chr(15507588);
+          ELSE
+             l_rtn_value := p_time;
+          END IF;
+       
+       END IF;
+       
+       IF p_time = h$constants.c_time_years THEN
+       
+          IF p_key = h$constants.c_chinese THEN
+             l_rtn_value := chr(15055284)||chr(15042957);
+          ELSIF p_key = h$constants.c_japanese THEN
+             l_rtn_value := chr(15055284)||chr(15042957);
+          ELSIF p_key = h$constants.c_korean THEN
+             l_rtn_value := chr(15435140)||chr(15507588);
+          ELSE
+             l_rtn_value := p_time;
+          END IF;
+       
+       END IF;
+    
+      return l_rtn_value;
+      
+    END to_transx;
+    
+    
+    FUNCTION to_transy(p_time in number, p_key in varchar2) return h$type.var_t
+    IS
+     l_rtn_value h$type.var_t;
+    BEGIN
+    
+      IF p_time < 12 THEN
+          IF p_key = h$constants.c_chinese THEN
+             l_rtn_value := chr(15043976)||chr(15047848);
+          ELSIF p_key = h$constants.c_japanese THEN
+             l_rtn_value := chr(15043976)||chr(15047848);
+          ELSIF p_key = h$constants.c_korean THEN
+             l_rtn_value := chr(15505572)||chr(15382664);
+          ELSE
+             l_rtn_value := 'AM';
+          END IF;
+      ELSE
+          IF p_key = h$constants.c_chinese THEN
+             l_rtn_value := chr(15043976)||chr(15056524);
+          ELSIF p_key = h$constants.c_japanese THEN
+             l_rtn_value := chr(15043976)||chr(15056524);
+          ELSIF p_key = h$constants.c_korean THEN
+             l_rtn_value := chr(15505572)||chr(15571844);
+          ELSE
+             l_rtn_value := 'PM';
+          END IF;
+      END IF;
+      
+    
+      return l_rtn_value;
+      
+    END to_transy;
+   
+    FUNCTION to_trans(p_base in date,p_posting in date,p_key IN VARCHAR2) return h$type.var_t
     IS
      l_rtn_value h$type.var_t;
      l_diff      h$type.num_t;
      l_time      h$type.var_t;
+     l_hour      h$type.num_t;
     BEGIN
     
         
-       l_time := to_char(p_posting,' PM HH:MI:SS');
+       l_time := to_char(p_posting,' HH:MI:SS');
+       l_hour := to_number(to_char(p_posting,'HH24'));
+       
     
        IF p_posting > p_base THEN
          -- future
@@ -1737,24 +1899,24 @@ create or replace PACKAGE BODY h$util AS
        
        ELSE
          -- past
-         l_diff := (p_base - p_posting)*24*60;
+         l_diff := (p_base - p_posting)*24*60;   
          
          IF l_diff < 1 THEN
-            l_rtn_value := 'now';         
+            l_rtn_value := to_transx(h$constants.c_time_now,p_key);       
          ELSIF l_diff < 60 THEN
-            l_rtn_value := trunc(l_diff)||' minutes ago'||l_time;         
+            l_rtn_value := trunc(l_diff)||to_transx(h$constants.c_time_minute,p_key)||' '||to_transy(l_hour,p_key)||l_time;         
          ELSIF l_diff < 60*24 THEN
-            l_rtn_value := trunc(l_diff/(60))||' hours ago'||l_time;
+            l_rtn_value := trunc(l_diff/(60))||to_transx(h$constants.c_time_hours,p_key)||' '||to_transy(l_hour,p_key)||l_time;
          ELSIF l_diff < 60*24*7 THEN
-            l_rtn_value := trunc(l_diff/(60*24))||' days ago'||l_time;   
+            l_rtn_value := trunc(l_diff/(60*24))||to_transx(h$constants.c_time_days,p_key)||' '||to_transy(l_hour,p_key)||l_time;   
          ELSIF l_diff < 60*24*(7*4) THEN
-            l_rtn_value := trunc(l_diff/(60*24*7))||' weeks ago'||l_time;   
+            l_rtn_value := trunc(l_diff/(60*24*7))||to_transx(h$constants.c_time_weeks,p_key)||' '||to_transy(l_hour,p_key)||l_time;   
          ELSIF l_diff < 60*24*365 THEN
-            l_rtn_value := trunc(months_between(p_base,p_posting))||' months ago'||l_time;
+            l_rtn_value := trunc(months_between(p_base,p_posting))||to_transx(h$constants.c_time_months,p_key)||' '||to_transy(l_hour,p_key)||l_time;
          ELSE
-            l_rtn_value := trunc((p_base - p_posting)/365)||' years ago'||l_time;                  
+            l_rtn_value := trunc((p_base - p_posting)/365)||to_transx(h$constants.c_time_years,p_key)||' '||to_transy(l_hour,p_key)||l_time;                  
          END IF;
-       
+     
        
        END IF;
       
@@ -1997,6 +2159,37 @@ create or replace PACKAGE BODY h$util AS
        
     END isChar;
     
+    FUNCTION to_reverse(p_str in varchar2) RETURN h$type.var_t
+    IS
+     l_rtn_value h$type.var_t := '';
+    BEGIN
+    
+     FOR i in 1..length(p_str) LOOP
+      
+         l_rtn_value := substr(p_str,i,1) || l_rtn_value;
+        
+     END LOOP;
+    
+     return l_rtn_value;
+     
+    END to_reverse;
+    
+    FUNCTION to_reverse(p_num in number) RETURN h$type.num_t
+    IS
+     l_rtn_value h$type.var_t := '';
+     p_str       h$type.var_t := to_char(p_num);
+    BEGIN
+    
+     FOR i in 1..length(p_str) LOOP
+      
+         l_rtn_value := substr(p_str,i,1) || l_rtn_value;
+        
+     END LOOP;
+    
+     return to_number(l_rtn_value);
+     
+    END to_reverse;
+    
     FUNCTION add_tag(p_str in varchar2, p_start in varchar2, p_end in varchar2, p_prefix in varchar2, p_postfix in varchar2) RETURN H$TYPE.var_t
     IS
      l_idx        H$TYPE.num_t := 1;
@@ -2100,3 +2293,4 @@ create or replace PACKAGE BODY h$util AS
     
     
 END h$util;
+/

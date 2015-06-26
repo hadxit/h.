@@ -30,7 +30,7 @@ create or replace PACKAGE h$initial AS
 
 
 END h$initial;
-
+/
 
 CREATE OR REPLACE PACKAGE BODY h$initial AS
 -- ------------------------------------------------

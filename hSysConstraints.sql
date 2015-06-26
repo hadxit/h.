@@ -26,6 +26,13 @@ AS
    c_rtn_false      CONSTANT h$type.var_t    := 'F';
    c_left           CONSTANT h$type.var_t    := 'LEFT';
    c_right          CONSTANT h$type.var_t    := 'RIGHT';
+   
+   c_ll             CONSTANT h$type.var_t    := 'LEFT-LEFT';
+   c_lr             CONSTANT h$type.var_t    := 'LEFT-RIGHT';
+   c_rr             CONSTANT h$type.var_t    := 'RIGHT-RIGHT';
+   c_rl             CONSTANT h$type.var_t    := 'RIGHT-LEFT';
+   
+   
    c_percent        CONSTANT h$type.var_t    := '%';
    c_all            CONSTANT h$type.var_t    := '*';
    c_comma          CONSTANT h$type.var_t    := ',';
@@ -106,6 +113,7 @@ AS
    c_ft3          CONSTANT VARCHAR2 (10)       := 'ft3';
    c_yd3          CONSTANT VARCHAR2 (10)       := 'yd3';
    c_gal          CONSTANT VARCHAR2 (10)       := 'gal';
+   c_bbl          CONSTANT VARCHAR2 (10)       := 'bbl';
    --heat
    c_heat           CONSTANT VARCHAR2 (10)       := 'heat';
    c_c            CONSTANT VARCHAR2 (10)       := 'C';
@@ -156,6 +164,17 @@ AS
    c_hh           CONSTANT VARCHAR2 (10)       := 'HH';
    c_mi           CONSTANT VARCHAR2 (10)       := 'MI';
    c_ss           CONSTANT VARCHAR2 (10)       := 'SS';
+   
+   
+   c_time_now        CONSTANT VARCHAR2(20) := 'now';
+   c_time_minute     CONSTANT VARCHAR2(20) := 'minutes ago';
+   c_time_hours      CONSTANT VARCHAR2(20) := 'hours ago';
+   c_time_days       CONSTANT VARCHAR2(20) := 'days ago';
+   c_time_weeks      CONSTANT VARCHAR2(20) := 'weeks ago';
+   c_time_months     CONSTANT VARCHAR2(20) := 'months ago';
+   c_time_years      CONSTANT VARCHAR2(20) := 'years ago';
+   
+  
   -- --------------------------------------------------
   -- Null/empty variables that are structures so they
   -- cannot be declared CONSTANT.
@@ -168,3 +187,4 @@ AS
  --  c_null_sub_t              h$type.col_sub_t;
     
 END h$constants;
+/

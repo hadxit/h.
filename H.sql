@@ -13,6 +13,7 @@ AS
 -- express purpose of supporting applications supplied by HAD Family
 -- or its designated agents.
 -- ------------------------------------------------
+
    /* CONSTANTS FUNCTION */
    --length
    FUNCTION c_mm   RETURN VARCHAR2;
@@ -52,6 +53,8 @@ AS
    FUNCTION c_ft3 RETURN VARCHAR2;
    FUNCTION c_yd3 RETURN VARCHAR2;
    FUNCTION c_gal RETURN VARCHAR2;
+   FUNCTION c_bbl RETURN VARCHAR2;
+   
    --heat
    FUNCTION c_c RETURN VARCHAR2;
    FUNCTION c_f RETURN VARCHAR2;
@@ -70,6 +73,7 @@ AS
    FUNCTION c_inchhg  RETURN VARCHAR2;
    FUNCTION c_mmh2o   RETURN VARCHAR2;
    FUNCTION c_inchh2o RETURN VARCHAR2;
+   
    --speed
    FUNCTION c_m_s  RETURN VARCHAR2;
    FUNCTION c_m_h  RETURN VARCHAR2;
@@ -101,7 +105,30 @@ AS
    FUNCTION c_left  RETURN VARCHAR2;      
    FUNCTION c_right RETURN VARCHAR2;            
       
+   FUNCTION c_ll  RETURN VARCHAR2;      
+   FUNCTION c_lr  RETURN VARCHAR2;      
+   FUNCTION c_rr  RETURN VARCHAR2;      
+   FUNCTION c_rl  RETURN VARCHAR2;      
+   
    FUNCTION c_all RETURN VARCHAR2;           
+   
+   FUNCTION c_tab       RETURN VARCHAR2;
+   FUNCTION c_enter     RETURN VARCHAR2;
+   FUNCTION c_space     RETURN VARCHAR2;
+   FUNCTION c_squot     RETURN VARCHAR2;
+   FUNCTION c_and       RETURN VARCHAR2;
+   FUNCTION c_dquot     RETURN VARCHAR2;
+   FUNCTION c_slash     RETURN VARCHAR2;
+   FUNCTION c_colon     RETURN VARCHAR2;
+   FUNCTION c_scolon    RETURN VARCHAR2;
+   FUNCTION c_bslash    RETURN VARCHAR2;
+   FUNCTION c_kr        RETURN VARCHAR2;
+   FUNCTION c_en        RETURN VARCHAR2;  
+   FUNCTION c_ch        RETURN VARCHAR2; 
+   FUNCTION c_jr        RETURN VARCHAR2;  
+   FUNCTION c_spc       RETURN VARCHAR2;  
+   FUNCTION c_num       RETURN VARCHAR2;     
+   
 
    /* To, IS FUNCTION */
    FUNCTION isnumber  (p_key IN NUMBER) RETURN h$type.num_t;
@@ -155,6 +182,11 @@ AS
    FUNCTION to_split    (p_str in VARCHAR2,p_pattern in VARCHAR2,p_pattern2 in VARCHAR2) RETURN hobjvalueset_t1;
    FUNCTION to_split    (p_str in VARCHAR2,p_pattern in VARCHAR2,p_pattern2 in VARCHAR2,p_pattern3 in VARCHAR2) RETURN hobjvalueset_t1;
    
+   FUNCTION to_trans(p_num in number) return h$type.var_t;
+   FUNCTION to_trans(p_base in date,p_posting in date) return h$type.var_t;
+   FUNCTION to_trans(p_base in date,p_posting in date,p_key in varchar2) return h$type.var_t;
+   
+   
    FUNCTION to_col(tablename in varchar2,
                    columnname in varchar2,
                    ordercolumn in varchar2, 
@@ -191,10 +223,267 @@ AS
    FUNCTION SYS_SQLHIST RETURN  hsysvalueset_t1;
    FUNCTION SYS_SQLHIST(dbuser in varchar2 , sqltext in varchar2) RETURN  hsysvalueset_t2;
    FUNCTION SYS_SQLHIST(dbuser in varchar2 ) RETURN  hsysvalueset_t2;
+   FUNCTION SYS_DIAGNOSIS RETURN hobjvalueset_t1;
+   FUNCTION sys_dependency(p_owner in varchar2, p_object in varchar2) RETURN hobjvalueset_t1;
+   FUNCTION sys_which(p_stmt in varchar2) RETURN hobjvalueset_t4;
+   FUNCTION sys_info RETURN hobjvalueset_t2;
+   FUNCTION SYS_DU(p_type in varchar2) RETURN  hobjvalueset_t3;
+   FUNCTION SYS_STORAGE RETURN hobjvalueset_t1;
+   FUNCTION SYS_LIMIT RETURN hobjvalueset_t1;
    
    FUNCTION counta (p_str IN VARCHAR2, p_delimeter IN VARCHAR2) RETURN h$type.num_t;
+   
+   FUNCTION to_reverse (p_str IN VARCHAR2) RETURN h$type.var_t;
+   FUNCTION to_reverse (p_num IN NUMBER) RETURN h$type.num_t;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t);
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t);
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t);
+                     
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t);
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t);
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t);
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t);
+                     
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t);       
+                                
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t,
+                     p_val9 in h$type.obj_value_t);
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t);
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t);
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t);
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t);
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t);
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t);
+                     
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t);       
+                     
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t);   
+                                                                                                                                         
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t,
+                     p_val9 in h$type.obj_value_t);   
+                     
+   PROCEDURE setter (p_classname in h$type.class_name_t,p_val in h$type.obj_value_t);
+   
+    FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t) return h$type.var_t; 
+    
+    FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t) return h$type.var_t; 
+    
+    FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t) return h$type.var_t; 
+    
+    FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t) return h$type.var_t; 
+    
+    FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t) return h$type.var_t; 
+    
+    FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t) return h$type.var_t; 
+                     
+    FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t) return h$type.var_t;       
+    
+    FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t) return h$type.var_t;       
+                                                                                                                     
+    FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t,
+                     p_val9 in h$type.obj_value_t) return h$type.var_t;   
+    
+    FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t) return h$type.var_t; 
+                      
+    FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t,
+                     p_val9 in h$type.obj_value_t) return h$type.var_t;    
+    FUNCTION setter (p_classname in h$type.class_name_t,p_val in h$type.obj_value_t) RETURN h$type.var_t; 
+    
+    FUNCTION  count (p_classname in h$type.class_name_t) RETURN h$type.int_t;
+    
+    PROCEDURE remove (p_classname in h$type.class_name_t,p_key in h$type.int_t);
+    PROCEDURE remove (p_classname in h$type.class_name_t, p_key in h$type.obj_key_t);
+    PROCEDURE remove (p_classname in h$type.class_name_t);
+    
+    FUNCTION getter(p_classname in h$type.class_name_t) RETURN hobjvalueset_t10;
+    FUNCTION getter(p_classname in h$type.class_name_t,p_key in h$type.obj_key_t) RETURN hobjvalueset_t10;
+    FUNCTION key_gen(p_key in h$type.var_t) RETURN h$type.var_t;
+    FUNCTION encrypt(p_str in h$type.var_t,p_key in h$type.var_t) RETURN h$type.var_t;
+    FUNCTION decrypt(p_str in h$type.var_t,p_key in h$type.var_t) RETURN h$type.var_t;
 END h;
-
+/
 CREATE OR REPLACE PACKAGE BODY h
 AS
 -- ------------------------------------------------
@@ -244,6 +533,8 @@ AS
    FUNCTION c_ft3 RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_ft3; END c_ft3;
    FUNCTION c_yd3 RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_yd3; END c_yd3;
    FUNCTION c_gal RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_gal; END c_gal;
+   FUNCTION c_bbl RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_bbl; END c_bbl;
+   
    FUNCTION c_c RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_c; END c_c;
    FUNCTION c_f RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_f; END c_f;
    FUNCTION c_k RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_k; END c_k;
@@ -260,6 +551,8 @@ AS
    FUNCTION c_inchhg RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_inchhg; END c_inchhg;
    FUNCTION c_mmh2o RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_mmh2o; END c_mmh2o;
    FUNCTION c_inchh2o RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_inchh2o; END c_inchh2o;
+
+   
    FUNCTION c_m_s RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_m_s; END c_m_s;
    FUNCTION c_m_h RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_m_h; END c_m_h;
    FUNCTION c_km_s RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_km_s; END c_km_s;
@@ -286,7 +579,35 @@ AS
    FUNCTION c_ss RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_ss; END c_ss;  
    FUNCTION c_left RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_left; END c_left;  
    FUNCTION c_right RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_right; END c_right;   
+   FUNCTION c_ll RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_ll; END c_ll;   
+   FUNCTION c_lr RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_lr; END c_lr;   
+   FUNCTION c_rr RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_rr; END c_rr;   
+   FUNCTION c_rl RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_rl; END c_rl;   
+   
+   
+   
+   
    FUNCTION c_all RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_all; END c_all;
+   
+   
+   FUNCTION c_tab       RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_tab; END c_tab;
+   FUNCTION c_enter     RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_enter; END c_enter;
+   FUNCTION c_space     RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_space; END c_space;
+   FUNCTION c_squot     RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_squot; END c_squot;
+   FUNCTION c_and       RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_and; END c_and;
+   FUNCTION c_dquot     RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_dquot; END c_dquot;
+   FUNCTION c_slash     RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_slash; END c_slash;
+   FUNCTION c_colon     RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_colon; END c_colon;
+   FUNCTION c_scolon    RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_scolon; END c_scolon;
+   FUNCTION c_bslash    RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_bslash; END c_bslash;
+   FUNCTION c_kr        RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_korean; END c_kr;
+   FUNCTION c_en        RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_english; END c_en;  
+   FUNCTION c_ch        RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_chinese; END c_ch; 
+   FUNCTION c_jr        RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_japanese; END c_jr;  
+   FUNCTION c_spc       RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_special; END c_spc;  
+   FUNCTION c_num       RETURN VARCHAR2 IS BEGIN RETURN h$constants.c_number; END c_num;    
+   
+   
    
    /* To, IS FUNCTION */
    FUNCTION isnumber (p_key IN NUMBER) RETURN h$type.num_t IS BEGIN RETURN h$util.isnumber (p_key); END isnumber;
@@ -403,6 +724,10 @@ AS
    FUNCTION to_ascii (p_str IN VARCHAR2, p_base IN NUMBER )  RETURN h$type.num_t IS BEGIN RETURN h$util.to_ascii (p_str,p_base); END to_ascii;
    FUNCTION to_comma (p_dec IN NUMBER) RETURN h$type.var_t IS BEGIN RETURN h$util.to_comma (p_dec); END to_comma;
    
+   FUNCTION to_trans(p_num in number) RETURN h$type.var_t IS BEGIN return h$util.to_trans(p_num); END to_trans;
+   FUNCTION to_trans(p_base in date,p_posting in date) RETURN h$type.var_t IS BEGIN return h$util.to_trans(p_base,p_posting); END to_trans;
+   FUNCTION to_trans(p_base in date,p_posting in date,p_key in varchar2) RETURN h$type.var_t IS BEGIN return h$util.to_trans(p_base,p_posting,p_key); END to_trans;
+   
    FUNCTION to_substr(p_str in varchar2,p_delimeter in varchar2,p_direction in varchar2) RETURN H$TYPE.var_t
    IS
    BEGIN
@@ -412,7 +737,7 @@ AS
    FUNCTION to_substr(p_str in varchar2,p_delimeter in varchar2) RETURN H$TYPE.var_t
    IS
    BEGIN
-     RETURN h$util.to_substr(p_str,p_delimeter,h$constants.c_left);
+     RETURN h$util.to_substr(p_str,p_delimeter,h$constants.c_ll);
    END to_substr;
    
    FUNCTION to_percent(p_dec in number) return H$TYPE.var_t
@@ -602,5 +927,550 @@ AS
    BEGIN
      RETURN h$system.SYS_SQLHIST(dbuser,'*');
    END SYS_SQLHIST;
+   
+     
+   FUNCTION SYS_DIAGNOSIS RETURN hobjvalueset_t1
+   IS
+   BEGIN
+     return H$SYSTEM.SYS_DIAGNOSIS;
+   END SYS_DIAGNOSIS;
+   
+   FUNCTION sys_dependency(p_owner in varchar2, p_object in varchar2) RETURN hobjvalueset_t1
+   IS
+   BEGIN
+     return h$system.sys_dependency(p_owner,p_object);
+   END sys_dependency;
+   
+   FUNCTION sys_which(p_stmt in varchar2) RETURN hobjvalueset_t4
+   IS
+   BEGIN
+     return h$system.sys_which(p_stmt);
+   END sys_which;
+   
+   FUNCTION sys_info RETURN hobjvalueset_t2
+   IS
+   BEGIN
+     return h$system.sys_info;
+   END sys_info;
+   
+   FUNCTION SYS_DU(p_type in varchar2) RETURN  hobjvalueset_t3
+   IS
+   BEGIN
+     return h$system.sys_du(p_type);
+   END SYS_DU;
+   
+   FUNCTION SYS_STORAGE RETURN hobjvalueset_t1
+   IS
+   BEGIN
+     return h$system.SYS_STORAGE;
+   END SYS_STORAGE;
+   
+   FUNCTION SYS_LIMIT RETURN hobjvalueset_t1
+   IS
+   BEGIN
+     return h$system.sys_limit;
+   END SYS_LIMIT;
+
+   
+   FUNCTION to_reverse(p_str in varchar2) return h$type.var_t is begin return h$util.to_reverse(p_str); end to_reverse;
+   FUNCTION to_reverse(p_num in number) return h$type.num_t is begin return h$util.to_reverse(p_num); end to_reverse;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,null,null,null,null,null,null,null,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,null,null,null,null,null,null,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,null,null,null,null,null,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,null,null,null,null,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,null,null,null,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,null,null,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,p_val7,null,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,p_val7,p_val8,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t,
+                     p_val9 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,p_val7,p_val8,p_val9);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,null,null,null,null,null,null,null,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,null,null,null,null,null,null,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,null,null,null,null,null,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,null,null,null,null,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,null,null,null,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,null,null,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,p_val7,null,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,p_val7,p_val8,null);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t,
+                     p_val9 in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,p_val7,p_val8,p_val9);
+   END setter;
+   
+   PROCEDURE setter (p_classname in h$type.class_name_t,p_val in h$type.obj_value_t)
+   IS
+   BEGIN
+       h$cache.cset(p_classname,p_val);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,null,null,null,null,null,null,null,null);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,null,null,null,null,null,null,null);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,null,null,null,null,null,null);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,null,null,null,null,null);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,null,null,null,null);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,null,null,null);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,p_val7,null,null);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,p_val7,p_val8,null);
+   END setter;
+    
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.obj_key_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t,
+                     p_val9 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,p_val7,p_val8,p_val9);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,null,null,null,null,null,null,null,null);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,null,null,null,null,null,null,null);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,null,null,null,null,null,null);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,null,null,null,null,null);
+   END setter; 
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,null,null,null,null);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,null,null,null);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,p_val7,null,null);
+   END setter;
+   
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,p_val7,p_val8,null);
+   END setter;
+         
+   FUNCTION setter (p_classname in h$type.class_name_t, 
+                     p_key in h$type.int_t,
+                     p_val1 in h$type.obj_value_t,
+                     p_val2 in h$type.obj_value_t,
+                     p_val3 in h$type.obj_value_t,
+                     p_val4 in h$type.obj_value_t,
+                     p_val5 in h$type.obj_value_t,
+                     p_val6 in h$type.obj_value_t,
+                     p_val7 in h$type.obj_value_t,
+                     p_val8 in h$type.obj_value_t,
+                     p_val9 in h$type.obj_value_t) return h$type.var_t
+   IS
+   BEGIN
+     return  h$cache.cset(p_classname,p_key,p_val1,p_val2,p_val3,p_val4,p_val5,p_val6,p_val7,p_val8,p_val9);
+   END setter;                   
+   
+   FUNCTION setter (p_classname in h$type.class_name_t,p_val in h$type.obj_value_t) RETURN h$type.var_t
+   IS
+   BEGIN
+     return h$cache.cset(p_classname,p_val);
+   END setter; 
+    
+   FUNCTION  count (p_classname in h$type.class_name_t) RETURN h$type.int_t
+   IS
+   BEGIN
+     return h$cache.count(p_classname);
+   END count;
+    
+   PROCEDURE remove (p_classname in h$type.class_name_t,p_key in h$type.int_t)
+   IS
+   BEGIN
+     h$cache.remove(p_classname,p_key);
+   END remove;
+   
+   PROCEDURE remove (p_classname in h$type.class_name_t, p_key in h$type.obj_key_t)
+   IS
+   BEGIN
+     h$cache.remove(p_classname,p_key);
+   END remove;
+   
+   PROCEDURE remove (p_classname in h$type.class_name_t)
+   IS
+   BEGIN
+     h$cache.remove(p_classname);
+   END remove;
+    
+   FUNCTION getter(p_classname in h$type.class_name_t) RETURN hobjvalueset_t10
+   IS
+   BEGIN
+     return h$cache.get(p_classname);
+   END getter;
+   
+   FUNCTION getter(p_classname in h$type.class_name_t,p_key in h$type.obj_key_t) RETURN hobjvalueset_t10
+   IS
+   BEGIN
+     return h$cache.get(p_classname,p_key);
+   END getter;
+   
+   FUNCTION key_gen(p_key in h$type.var_t) RETURN h$type.var_t
+   IS
+   BEGIN
+     return h$code.key_gen(p_key);
+   END key_gen;
+   
+   FUNCTION encrypt(p_str in h$type.var_t,p_key in h$type.var_t) RETURN h$type.var_t
+   IS
+   BEGIN
+      return h$code.encrypt(p_str,p_key);
+   END encrypt;
+   FUNCTION decrypt(p_str in h$type.var_t,p_key in h$type.var_t) RETURN h$type.var_t
+   IS
+   BEGIN
+      return h$code.decrypt(p_str,p_key);
+   END decrypt;
+   
 END h;
 /
