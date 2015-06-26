@@ -52,3 +52,4 @@ create or replace PACKAGE h$variables AS
     
     
 END h$variables;
+/
